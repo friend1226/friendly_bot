@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 
 class WaitingPlayer:
-    def __init__(self, bot: 'MyBot', discord_member: nextcord.Member):
+    def __init__(self, bot: 'MyBot', discord_member: discord.Member):
         self.bot = bot
         self.loop = bot.loop
         self.player = discord_member
@@ -49,10 +49,10 @@ class MatchMaker:
         self.task = self.loop.create_task(self.check_match())
         self.querys = deque()
 
-    def add_player(self, player: nextcord.Member):
+    def add_player(self, player: discord.Member):
         self.querys.append((1, player))
 
-    def remove_player(self, player: nextcord.Member):
+    def remove_player(self, player: discord.Member):
         self.querys.append((2, player))
     
     @property

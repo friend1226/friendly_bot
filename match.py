@@ -45,8 +45,8 @@ class MatchScrim:
 
     def __init__(self,
                  bot: 'MyBot',
-                 player: nextcord.Member,
-                 opponent: nextcord.Member,
+                 player: discord.Member,
+                 opponent: discord.Member,
                  bo: int = 7,
                  duel: Optional[Union[int, d, str]] = None):
         self.bot = bot
@@ -57,7 +57,7 @@ class MatchScrim:
         self.BO = bo
         self.__id = MatchScrim.__id
         MatchScrim.__id += 1
-        self.channel: Optional[nextcord.TextChannel] = None
+        self.channel: Optional[discord.TextChannel] = None
         self.made_time = datetime.datetime.utcnow()
         self.playID: Dict[int, Optional[dict]] = {self.player.id: None, self.opponent.id: None}
         self.uuid: Dict[int, Optional[str]] = {self.player.id: None, self.opponent.id: None}
@@ -70,7 +70,7 @@ class MatchScrim:
         self.match_id: Optional[str] = None
 
         self.scrim: Optional[Scrim] = None
-        self.role: Optional[nextcord.Role] = None
+        self.role: Optional[discord.Role] = None
         self.timer: Optional[Timer] = None
 
         self.round = -1
@@ -131,15 +131,15 @@ class MatchScrim:
             return
         if r_:
             self.scrim.write_log(f"[{get_nowtime_str()}] {self}: {subj.name} readyed.\n")
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"{subj.name} ready!",
-                color=nextcord.Colour.green()
+                color=discord.Colour.green()
             ))
         else:
             self.scrim.write_log(f"[{get_nowtime_str()}] {self}: {subj.name} unreadyed.\n")
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"{subj.name} unready!",
-                color=nextcord.Colour.green()
+                color=discord.Colour.green()
             ))
 
     def is_all_ready(self):
@@ -154,10 +154,10 @@ class MatchScrim:
         self.readyable = False
         if self.round == -1:
             if timer_cancelled:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title="ALL READY!",
                     description="Making match & Selecting mappool...",
-                    color=nextcord.Colour.dark_red()
+                    color=discord.Colour.dark_red()
                 ))
 
                 await self.scrim.maketeam("RED", False)
@@ -173,50 +173,50 @@ class MatchScrim:
                     {0, 1, 8, 16, 17, 24, 128, 129, 136, 144, 145, 152}  # TB
                 )
             else:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title="The Opponent didn't participate.",
                     description="Match aborted.",
-                    color=nextcord.Colour.dark_red()
+                    color=discord.Colour.dark_red()
                 ))
                 self.aborted = True
         elif self.round == 0:
             if timer_cancelled:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title="ALL READY!",
                     description="Preparing the round...",
-                    color=nextcord.Colour.dark_red()
+                    color=discord.Colour.dark_red()
                 ))
             else:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title="The Opponent didn't ready.",
                     description="Match aborted.",
-                    color=nextcord.Colour.dark_red()
+                    color=discord.Colour.dark_red()
                 ))
                 self.aborted = True
         else:
             if timer_cancelled:
-                message = await self.channel.send(embed=nextcord.Embed(
+                message = await self.channel.send(embed=discord.Embed(
                     title="ALL READY!",
                     description=f"Round #{self.round} starts in 10...",
-                    color=nextcord.Colour.purple()
+                    color=discord.Colour.purple()
                 ))
                 for i in range(9, -1, -1):
-                    await asyncio.gather(message.edit(embed=nextcord.Embed(
+                    await asyncio.gather(message.edit(embed=discord.Embed(
                         title="ALL READY!",
                         description=f"Round #{self.round} starts in **{i}**...",
-                        color=nextcord.Colour.purple()
+                        color=discord.Colour.purple()
                     )), asyncio.sleep(1))
             else:
-                message = await self.channel.send(embed=nextcord.Embed(
+                message = await self.channel.send(embed=discord.Embed(
                     title="READY TIME OVER!",
                     description=f"Force Round #{self.round} to start in 10...",
-                    color=nextcord.Colour.purple()
+                    color=discord.Colour.purple()
                 ))
                 for i in range(9, -1, -1):
-                    await asyncio.gather(message.edit(embed=nextcord.Embed(
+                    await asyncio.gather(message.edit(embed=discord.Embed(
                         title="READY TIME OVER!",
                         description=f"**Force** Round #{self.round} to start in **{i}**...",
-                        color=nextcord.Colour.purple()
+                        color=discord.Colour.purple()
                     )), asyncio.sleep(1))
             await self.scrim.do_match_start()
             mid = self.scrim.getmapid()[0]
@@ -242,27 +242,27 @@ class MatchScrim:
         elif self.round == -1:
             chname = f"match-{name}"
             guild = self.bot.RANKED_OSUDROID_GUILD
-            self.role = await guild.create_role(name=chname, color=nextcord.Colour.random())
+            self.role = await guild.create_role(name=chname, color=discord.Colour.random())
             await self.player.add_roles(self.role)
             await self.opponent.add_roles(self.role)
             if guild.id == RANKED_OSUDROID_GUILD_ID:
                 overwrites = {
-                    guild.default_role: nextcord.PermissionOverwrite(read_messages=False),
+                    guild.default_role: discord.PermissionOverwrite(read_messages=False),
                     guild.get_role(823415179177885706):
-                        nextcord.PermissionOverwrite(read_messages=True, send_messages=False),  # verified
+                        discord.PermissionOverwrite(read_messages=True, send_messages=False),  # verified
                     guild.get_role(823730690058354688):
-                        nextcord.PermissionOverwrite(read_messages=True, send_messages=True),  # Staff member
-                    self.role: nextcord.PermissionOverwrite(read_messages=True, send_messages=True)
+                        discord.PermissionOverwrite(read_messages=True, send_messages=True),  # Staff member
+                    self.role: discord.PermissionOverwrite(read_messages=True, send_messages=True)
                 }
             else:
                 overwrites = {
-                    guild.default_role: nextcord.PermissionOverwrite(read_messages=True, send_messages=False),
-                    self.role: nextcord.PermissionOverwrite(read_messages=True, send_messages=True)
+                    guild.default_role: discord.PermissionOverwrite(read_messages=True, send_messages=False),
+                    self.role: discord.PermissionOverwrite(read_messages=True, send_messages=True)
                 }
             self.channel = await self.bot.match_place.create_text_channel(chname, overwrites=overwrites)
             self.player_info = await self.bot.get_user_info(self.player.id)
             if isinstance(self.player_info, self.bot.req.ERRORS):
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                         title="Error occurred!",
                         description=f"`{self.player_info}`\nCheck the log."
                 ))
@@ -271,7 +271,7 @@ class MatchScrim:
             self.opponent_info = await self.bot.get_user_info(self.opponent.id)
             if isinstance(self.opponent_info, self.bot.req.ERRORS):
                 await self.channel.send(
-                    embed=nextcord.Embed(
+                    embed=discord.Embed(
                         title="Error occurred!",
                         description=f"`{self.opponent_info}`\nCheck the log."
                     )
@@ -292,11 +292,11 @@ class MatchScrim:
                     )['uuid']
                 elif isinstance(self.duel_mappool_targ, str):
                     if maidbot_pools.get(self.duel_mappool_targ) is None:
-                        await self.channel.send(embed=nextcord.Embed(
+                        await self.channel.send(embed=discord.Embed(
                             title="Wrong UUID!",
                             description=f"Mappool of uuid {self.duel_mappool_targ} not existing! "
                                         f"Choosing random mappool...",
-                            color=nextcord.Colour(0x0ef37c)
+                            color=discord.Colour(0x0ef37c)
                         ))
                         self.duel_mappool_targ = None
                 else:
@@ -336,7 +336,7 @@ class MatchScrim:
             self.elo_manager.set_opponent_rating(ftod(self.opponent_info['elo']))
             await self.channel.send(
                 f"{self.player.mention} {self.opponent.mention}",
-                embed=nextcord.Embed(
+                embed=discord.Embed(
                     title="Match initiated!",
                     description="Chat `rdy` to participate in 2 minutes!"
                 )
@@ -350,21 +350,21 @@ class MatchScrim:
                                  f"Channel  ID : {self.channel.id}\n"
                                  f"Role     ID : {self.role.id}\n")
         elif self.round == 0:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title="Mappool is...",
                 description=f"Mappool Name : `{self.mappool_info['name']}`\n"
                             f"Mappool MMR (not modified) : "
                             f"{self.mappool_info['averageMMR']}\n"
                             f"Mappool UUID : `{self.mappool_uuid}`",
-                color=nextcord.Colour(0x0ef37c)
+                color=discord.Colour(0x0ef37c)
             ))
             self.scrim.write_log(f"[{get_nowtime_str()}] {self}.do_progress(): Mappool info\n"
                                  f"Pool name : {self.mappool_info['name']}\n"
                                  f"Pool UUID : {self.mappool_uuid}\n")
 
-            calcmsg = await self.channel.send(embed=nextcord.Embed(
+            calcmsg = await self.channel.send(embed=discord.Embed(
                 title="Mappool initiating...",
-                color=nextcord.Colour.blurple()
+                color=discord.Colour.blurple()
             ))
 
             maps = await self.bot.req.get_mappool(self.mappool_uuid)
@@ -373,7 +373,7 @@ class MatchScrim:
                 if len(tempmap) == 0:
                     self.scrim.write_log(f"[{get_nowtime_str()}] {self}.do_progress(): "
                                          f"UNPLAYABLE MAP FOUND - {md['mapId']}\n")
-                    await calcmsg.edit(content=f"{self.player.mention} {self.opponent.mention}", embed=nextcord.Embed(
+                    await calcmsg.edit(content=f"{self.player.mention} {self.opponent.mention}", embed=discord.Embed(
                         title="There's unplayable map in the mappool!",
                         description=f"Map id = {md['mapId']}\n"
                                     f"Call the moderator.\n"
@@ -400,11 +400,11 @@ class MatchScrim:
             self.map_order.append(maps['NM'].pop())
             self.map_tb = maps['TB'].pop()
 
-            await calcmsg.edit(content=f"{self.player.mention} {self.opponent.mention}", embed=nextcord.Embed(
+            await calcmsg.edit(content=f"{self.player.mention} {self.opponent.mention}", embed=discord.Embed(
                 title="Mappool successfully initiated!",
                 description=f"If you got ready, chat `rdy`.\n"
                             f"You have 1 minute to continue.",
-                color=nextcord.Colour.blue()
+                color=discord.Colour.blue()
             ))
             self.timer = Timer(self.bot, self.channel, f"Match_{name}_finalready", 60, self.go_next_status)
             self.scrim.write_log(f"[{get_nowtime_str()}] {self}.do_progress(): Mappool successfully initiated.\n")
@@ -419,12 +419,12 @@ class MatchScrim:
             pdrate, odrate = self.elo_manager.update(rate, True)
             prate_aft, orate_aft = self.elo_manager.get_ratings()
             if self.is_duel:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title="MATCH FINISHED",
-                    color=nextcord.Colour(0xcaf32a)
+                    color=discord.Colour(0xcaf32a)
                 ))
             else:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title="MATCH FINISHED",
                     description=f"__{self.player.display_name}__ : "
                                 f"{elo_show_form(prate_bef)} => **{elo_show_form(prate_aft)}** "
@@ -432,7 +432,7 @@ class MatchScrim:
                                 f"__{self.opponent.display_name}__ : "
                                 f"{elo_show_form(orate_bef)} => **{elo_show_form(orate_aft)}** "
                                 f"({odrate:+.3f})\n",
-                    color=nextcord.Colour(0xcaf32a)
+                    color=discord.Colour(0xcaf32a)
                 ))
             self.match_end = True
             namelen = max(len(self.player.name), len(self.opponent.name))
@@ -461,7 +461,7 @@ class MatchScrim:
             download_link = f"Osu!\t: https://osu.ppy.sh/beatmapsets/{mid[1]}#osu/{mid[0]}\n" \
                             f"Chimu\t: https://chimu.moe/en/d/{mid[1]}\n" \
                             f"Beatconnect\t: https://beatconnect.io/b/{mid[1]}"
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"Round #{self.round} Map selected!",
                 description=f"Map Info : `{self.scrim.getmapfull()}`\n"
                             f"Map Number : `{self.scrim.getnumber()}`\n"
@@ -469,19 +469,19 @@ class MatchScrim:
                             f"Allowed modes : "
                             f"`{', '.join(map(inttomode, self.scrim.availablemode[self.scrim.getmode()]))}`\n\n"
                             f"*Download links here :*\n{download_link}",
-                color=nextcord.Colour.blue()
+                color=discord.Colour.blue()
             ))
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"IMPORTANTS :",
                 description=f"Difficulty : **{self.scrim.getdiff()}**\n"
                             f"Allowed modes : "
                             f"`{', '.join(map(inttomode, self.scrim.availablemode[self.scrim.getmode()]))}`",
-                color=nextcord.Colour.green()
+                color=discord.Colour.green()
             ))
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"Round #{self.round} ready!",
                 description="Chat `rdy` in 5 minutes.",
-                color=nextcord.Colour.orange()
+                color=discord.Colour.orange()
             ))
             self.timer = Timer(self.bot, self.channel, f"Match_{name}_{self.round}", 300, self.go_next_status)
             self.scrim.write_log(f"[{get_nowtime_str()}] {self}.do_progress(): Round #{self.round} prepared.\n"
@@ -500,7 +500,7 @@ class MatchScrim:
                     if self.match_end:
                         self.scrim.write_log(
                             f"[{get_nowtime_str()}] {self}.match_task: Round #{self.round} match_end detected.\n")
-                        await self.channel.send(embed=nextcord.Embed(
+                        await self.channel.send(embed=discord.Embed(
                             title="Match successfully finished",
                             description="Delete after 180 seconds."
                         ))
@@ -508,7 +508,7 @@ class MatchScrim:
                     elif self.aborted:
                         self.scrim.write_log(
                             f"[{get_nowtime_str()}] {self}.match_task: Round #{self.round} aborted detected.\n")
-                        await self.channel.send(embed=nextcord.Embed(
+                        await self.channel.send(embed=discord.Embed(
                             title="Match successfully aborted",
                             description="Delete after 15 seconds."
                         ))
@@ -534,7 +534,7 @@ class MatchScrim:
         except asyncio.CancelledError:
             raise
         except BaseException as ex_:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title="Error occurred!",
                 description=f"`{ex_}`\nCheck the log.\n**This match will be aborted.**",
             ))
@@ -577,10 +577,10 @@ class MatchScrim:
         if self.match_task is None or self.match_task.done():
             self.match_task = self.bot.loop.create_task(self.match_start())
         else:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title="Match is already processing!",
                 description="Try again after the match ends.",
-                color=nextcord.Colour.dark_red()
+                color=discord.Colour.dark_red()
             ))
 
     async def surrender(self, ctx):
@@ -605,7 +605,7 @@ class MatchScrim:
         except asyncio.TimeoutError:
             await ctx.send(f"**{player.mention}, time over.**")
             return
-        await self.channel.send(embed=nextcord.Embed(
+        await self.channel.send(embed=discord.Embed(
             title=f"{player.name} surrendered",
             description="The match will finish soon..."
         ))

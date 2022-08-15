@@ -17,14 +17,14 @@ class Scrim:
 
     def __init__(self,
                  bot: 'MyBot',
-                 channel: nextcord.TextChannel,
+                 channel: discord.TextChannel,
                  match_: Optional['MatchScrim'] = None,
-                 role: Optional[nextcord.Role] = None):
+                 role: Optional[discord.Role] = None):
         self.bot = bot
         self.match = match_
         self.role = role
         self.loop = self.bot.loop
-        self.channel: nextcord.TextChannel = channel
+        self.channel: discord.TextChannel = channel
         self.start_time = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S_%f')
         if self.match:
             if self.role is None:
@@ -119,7 +119,7 @@ class Scrim:
     def get_max_id(cls):
         return cls.__id
 
-    def get_player_team(self, member: nextcord.Member):
+    def get_player_team(self, member: discord.Member):
         mid = member.id
         if mid not in self.players:
             return
@@ -137,19 +137,19 @@ class Scrim:
         if do_print is None:
             do_print = self.PRINT_ON
         if self.team.get(name) is not None and do_print:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"Team `{name}` already exists!",
                 description=f"Now team list:"+''.join([f"\n`{s}`" for s in self.team.keys()]),
-                color=nextcord.Colour.dark_blue()
+                color=discord.Colour.dark_blue()
             ))
         else:
             self.team[name] = set()
             self.setscore[name] = 0
             if do_print:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"Added Team `{name}`.",
                     description=f"Now team list:"+''.join([f"\n`{s}`" for s in self.team.keys()]),
-                    color=nextcord.Colour.blue()
+                    color=discord.Colour.blue()
                 ))
             self.write_log(f"[{get_nowtime_str()}] Team \"{name}\" made.\n")
 
@@ -157,24 +157,24 @@ class Scrim:
         if do_print is None:
             do_print = self.PRINT_ON
         if self.team.get(name) is None and do_print:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"There's no Team `{name}`.",
                 description=f"Now team list:"+''.join([f"\n`{s}`" for s in self.team.keys()]),
-                color=nextcord.Colour.dark_blue()
+                color=discord.Colour.dark_blue()
             ))
         else:
             for p in self.team[name]:
                 del self.findteam[p]
             del self.team[name], self.setscore[name]
             if do_print:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"Removed Team `{name}`.",
                     description=f"Now team list:"+''.join([f"\n`{s}`" for s in self.team.keys()]),
-                    color=nextcord.Colour.blue()
+                    color=discord.Colour.blue()
                 ))
             self.write_log(f"[{get_nowtime_str()}] Team \"{name}\" removed.\n")
 
-    async def addplayer(self, name: str, member: Optional[nextcord.Member], do_print: bool=None):
+    async def addplayer(self, name: str, member: Optional[discord.Member], do_print: bool=None):
         if do_print is None:
             do_print = self.PRINT_ON
         if not member:
@@ -183,22 +183,22 @@ class Scrim:
         temp = self.findteam.get(mid)
         if temp:
             if do_print:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"Player `{member.display_name}` is already in Team `{temp}`!",
                     description=f"Please leave your team first (`//out`) and try again."
                 ))
         elif self.team.get(name) is None:
             if do_print:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"There's no Team `{name}`.",
                     description=f"Now team list:"+''.join([f"\n`{s}`" for s in self.team.keys()]),
-                    color=nextcord.Colour.dark_blue()
+                    color=discord.Colour.dark_blue()
                 ))
         else:
             if mid not in self.uuids:
                 userinfo = await self.bot.get_user_info(mid)
                 if isinstance(userinfo, self.bot.req.ERRORS):
-                    await self.channel.send(embed=nextcord.Embed(
+                    await self.channel.send(embed=discord.Embed(
                         title=f"Error occurred while loading `{member.display_name}`'(s) information.",
                         description=f"`{userinfo}`\nCheck the log."
                     ))
@@ -209,15 +209,15 @@ class Scrim:
             self.players.add(mid)
             self.score[mid] = {'score': d(0), 'acc': d(0), 'miss': d(0), 'rank': None, 'mode': 0}
             if do_print:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"Player `{member.display_name}` participates into Team `{name}`!",
                     description=f"Now player list of Team `{name}`:"+
                                 ''.join([f"\n`{self.bot.get_user(p).display_name}`" for p in self.team[name]]),
-                    color=nextcord.Colour.blue()
+                    color=discord.Colour.blue()
                 ))
             self.write_log(f"[{get_nowtime_str()}] Player \"{member.name}\" participated into Team {name}.\n")
 
-    async def removeplayer(self, member: Optional[nextcord.Member], do_print: bool = None):
+    async def removeplayer(self, member: Optional[discord.Member], do_print: bool = None):
         if do_print is None:
             do_print = self.PRINT_ON
         if not member:
@@ -226,7 +226,7 @@ class Scrim:
         temp = self.findteam.get(mid)
         if mid not in self.players:
             if do_print:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"Player `{member.display_name}` is participating in NO team!",
                     description=f"You participate first."
                 ))
@@ -235,16 +235,16 @@ class Scrim:
             self.team[temp].remove(mid)
             self.players.remove(mid)
             if do_print:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"Player `{member.display_name}` is leaving Team `{temp}`.",
                     description=f"Now player list of Team `{temp}`:" +
                                 ''.join([f"\n`{self.bot.get_user(p).display_name}`" for p in self.team[temp]]),
-                    color=nextcord.Colour.blue()
+                    color=discord.Colour.blue()
                 ))
             self.write_log(f"[{get_nowtime_str()}] Player \"{member.name}\" left from Team {temp}.\n")
 
     async def addscore(self, 
-                       member: Optional[nextcord.Member], 
+                       member: Optional[discord.Member], 
                        score: int, acc: str, miss: int,
                        grade: str = None, mode: Union[int, str] = 0):
         if not member:
@@ -253,16 +253,16 @@ class Scrim:
             mode = modetointfunc(re.findall(r'.{1,2}', mode, re.DOTALL))
         mid = member.id
         if mid not in self.players:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"Player `{member.display_name}` is participating in NO team!",
                 description=f"You participate first."
             ))
         else:
             self.score[mid] = {'score': getd(score), 'acc': acc, 'miss': getd(miss), 'rank': grade, 'mode': mode}
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"Player `{member.display_name}`'(s) score is modified.",
                 description=f"Team `{self.findteam[mid]}` <== {score}, {acc}%, {miss}xMISS",
-                color=nextcord.Colour.blue()
+                color=discord.Colour.blue()
             ))
             self.write_log(f"[{get_nowtime_str()}] Player \"{member.name}\" added score.\n"
                            f"Score : {self.score[mid]['score']:,d}\n"
@@ -271,43 +271,43 @@ class Scrim:
                            f"Rank  : {self.score[mid]['rank']}\n"
                            f"Mode  : {inttomode(self.score[mid]['mode'])}\n")
 
-    async def removescore(self, member: Optional[nextcord.Member], do_print: bool = None):
+    async def removescore(self, member: Optional[discord.Member], do_print: bool = None):
         if do_print is None:
             do_print = self.PRINT_ON
         if not member:
             return
         mid = member.id
         if mid not in self.players and do_print:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"Player `{member.display_name}` is participating in NO team!",
                 description=f"You participate first."
             ))
         else:
             self.score[mid] = {'score': getd(0), 'acc': "00.00", 'miss': getd(0), 'rank': None, 'mode': 0}
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title=f"Player `{member.display_name}`'(s) score is deleted.",
-                color=nextcord.Colour.blue()
+                color=discord.Colour.blue()
             ))
             self.write_log(f"[{get_nowtime_str()}] Player \"{member.name}\" removed score.\n")
     
     async def submit(self, calcmode: Optional[str] = None):
         if v2dict.get(calcmode) is None:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title="Unknown Calculate Mode!",
                 description="It should be (Empty), `nero2`, `jet2`, or `osu2`"
             ))
             return
         elif calcmode and (self.getautoscore() == -1):
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title="Autoplay score is needed to calculate V2-kind score!",
                 description="Modify it by using `m;mapscore`."
             ))
             return
         self.write_log(f"[{get_nowtime_str()}] Submit running... (calcmode : {calcmode})\n")
         calcf = v2dict[calcmode]
-        resultmessage = await self.channel.send(embed=nextcord.Embed(
+        resultmessage = await self.channel.send(embed=discord.Embed(
             title="Calculating...",
-            color=nextcord.Colour.orange()
+            color=discord.Colour.orange()
         ))
         calculatedscores = dict()
         for p in self.score:
@@ -329,10 +329,10 @@ class Scrim:
         for w in winnerteam:
             self.setscore[w] += 1
         desc = ', '.join('"'+t+'"' for t in winnerteam)
-        sendtxt = nextcord.Embed(
+        sendtxt = discord.Embed(
             title="========= ! ROUND END ! =========",
             description=f"__**Team `{desc}` get(s) a point!**__",
-            color=nextcord.Colour.red()
+            color=discord.Colour.red()
         )
         sendtxt.add_field(
             name="Map Info",
@@ -391,9 +391,9 @@ class Scrim:
     
     async def submit_fixca(self):
         self.write_log(f"[{get_nowtime_str()}] Submit running... (calcmode : FIXCA)\n")
-        resultmessage = await self.channel.send(embed=nextcord.Embed(
+        resultmessage = await self.channel.send(embed=discord.Embed(
             title="Calculating...",
-            color=nextcord.Colour.orange()
+            color=discord.Colour.orange()
         ))
         teamscore = dict()
         for t in self.team:
@@ -407,10 +407,10 @@ class Scrim:
         for w in winnerteam:
             self.setscore[w] += 1
         desc = ', '.join('"'+t+'"' for t in winnerteam)
-        sendtxt = nextcord.Embed(
+        sendtxt = discord.Embed(
             title="========= ! ROUND END ! =========",
             description=f"__**Team `{desc}` get(s) a point!**__",
-            color=nextcord.Colour.red()
+            color=discord.Colour.red()
         )
         sendtxt.add_field(
             name="Map Info",
@@ -630,7 +630,7 @@ class Scrim:
             playid_obj = await self.bot.req.create_playID(self.uuids[p], mapid)
             if isinstance(playid_obj, self.bot.req.ERRORS):
                 pname = self.bot.get_user(p).display_name
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"Error occured while creating play ID of `{pname}`.",
                     description=f"`{playid_obj}`\nCheck the log.\n`{pname}`'(s) record will not be submitted."
                 ))
@@ -644,7 +644,7 @@ class Scrim:
                 if temp.data['code'] == fixca.FixcaErrorCode.EXPIRED_PLAYID:
                     continue
                 pname = self.bot.get_user(p).display_name
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"Error occured while expiring play ID of `{pname}`.",
                     description=f"`{temp}`\nCheck the log.\nIt may have to be get expired manually."
                 ))
@@ -652,18 +652,18 @@ class Scrim:
     async def onlineload(self):
         self.write_log(f"[{get_nowtime_str()}] Onlineload running...\n")
         desc = '====== < Process LOG > ======'
-        resultmessage: nextcord.Message = await self.channel.send(embed=nextcord.Embed(
+        resultmessage: discord.Message = await self.channel.send(embed=discord.Embed(
             title="Processing...",
-            color=nextcord.Colour.red()
+            color=discord.Colour.red()
         ))
         for team in self.team:
             for player in self.team[team]:
                 desc += '\n'
                 playername = await self.bot.get_discord_username(player)
-                await resultmessage.edit(embed=nextcord.Embed(
+                await resultmessage.edit(embed=discord.Embed(
                     title="Processing...",
                     description=desc,
-                    color=nextcord.Colour.orange()
+                    color=discord.Colour.orange()
                 ))
                 if self.match:
                     player_recent_info = await self.bot.get_recent(
@@ -725,10 +725,10 @@ class Scrim:
                           f"{self.score[player]['modList']} / {self.score[player]['rank']} rank"
                 desc += temptxt
                 self.write_log(temptxt+"\n")
-        await resultmessage.edit(embed=nextcord.Embed(
+        await resultmessage.edit(embed=discord.Embed(
             title="Calculation finished!",
             description=desc,
-            color=nextcord.Colour.green()
+            color=discord.Colour.green()
         ))
         self.write_log(f"[{get_nowtime_str()}] Onlineload finished.\n")
 
@@ -737,10 +737,10 @@ class Scrim:
             lambda x: self.setscore[x] == max(self.setscore.values()),
             self.setscore.keys()
         ))
-        sendtxt = nextcord.Embed(
+        sendtxt = discord.Embed(
             title="========= ! MATCH END ! =========",
             description="Team " + ', '.join(f"\"{w}\"" for w in winnerteam) + " WON!",
-            color=nextcord.Colour.magenta()
+            color=discord.Colour.magenta()
         )
         sendtxt.add_field(
             name=blank,
@@ -770,7 +770,7 @@ class Scrim:
         with open(self.log.name, 'rb') as fp_:
             await self.channel.send(
                 embed=sendtxt,
-                file=nextcord.File(fp_)
+                file=discord.File(fp_)
             )
         print(f"[{get_nowtime_str()}] {self}.end(): Scrim finished.")
         if self.match is None:
@@ -784,33 +784,33 @@ class Scrim:
         if self.match_task is None or self.match_task.done():
             self.match_task = self.loop.create_task(self.match_start())
         else:
-            await self.channel.send(embed=nextcord.Embed(
+            await self.channel.send(embed=discord.Embed(
                 title="Match is already processing!",
                 description="Try again after the match ends.",
-                color=nextcord.Colour.dark_red()
+                color=discord.Colour.dark_red()
             ))
 
     async def match_start(self):
         self.write_log(f"[{get_nowtime_str()}] match_start running...\n")
         try:
             if self.map_length is None:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title="The length of the map is not modified!",
                     description="Use `//maptime` and try again.",
-                    color=nextcord.Colour.dark_red()
+                    color=discord.Colour.dark_red()
                 ))
                 self.write_log(f"[{get_nowtime_str()}] match_start(): Map time not set.\n")
                 return
             try:
                 self.round_start_time = int(time.time())
-                await asyncio.gather(self.channel.send(embed=nextcord.Embed(
+                await asyncio.gather(self.channel.send(embed=discord.Embed(
                     title=f"Round #{self.round} START!",
                     description=f"Map Info : `{self.getmapfull()}`\n"
                                 f"{'Map Number : {self.getnumber()} / ' if self.match else ''}Map Mode : {self.getmode()}\n"
                                 f"Map Length : {self.getmaplength()} sec\n"
                                 f"Allowed modes : "
                                 f"`{', '.join(map(inttomode, self.availablemode[self.getmode()]))}`",
-                    color=nextcord.Colour.from_rgb(255, 255, 0)
+                    color=discord.Colour.from_rgb(255, 255, 0)
                 )), self.create_play_id())
                 extra_rate = d('1')
                 if self.getmode() == 'DT':
@@ -820,18 +820,18 @@ class Scrim:
                 self.write_log(f"[{get_nowtime_str()}] match_start(): "
                                f"Waiting until map finish... ({self.timer.seconds} seconds)\n")
                 await self.timer.task
-                timermessage = await self.channel.send(embed=nextcord.Embed(
+                timermessage = await self.channel.send(embed=discord.Embed(
                     title=f"MAP TIME OVER!",
-                    color=nextcord.Colour.from_rgb(128, 128, 255)
+                    color=discord.Colour.from_rgb(128, 128, 255)
                 ))
                 self.write_log(f"[{get_nowtime_str()}] match_start(): "
                                f"Map finished. Waiting more 30 seconds...\n")
                 self.timer = Timer(self.bot, self.channel, f"{self.name}_{self.round}_extra", 30)
                 await self.timer.task
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title=f"MAP EXTRA TIME OVER!",
                     description="Online loading...",
-                    color=nextcord.Colour.from_rgb(128, 128, 255)
+                    color=discord.Colour.from_rgb(128, 128, 255)
                 ))
                 self.write_log(f"[{get_nowtime_str()}] match_start(): "
                                f"ALL done, onlineload() calling...\n")
@@ -852,9 +852,9 @@ class Scrim:
                 self.resetmap()
                 await self.expire_play_id()
             except asyncio.CancelledError:
-                await self.channel.send(embed=nextcord.Embed(
+                await self.channel.send(embed=discord.Embed(
                     title="Match Aborted!",
-                    color=nextcord.Colour.dark_red()
+                    color=discord.Colour.dark_red()
                 ))
                 self.write_log(f"[{get_nowtime_str()}] match_start(): aborted.\n")
                 raise

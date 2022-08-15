@@ -1,11 +1,11 @@
 import asyncio, aiohttp, \
-    datetime, decimal, nextcord, gspread, random, re, time, \
+    datetime, decimal, discord, random, re, time, \
     traceback, scoreCalc, os, json, bisect, hashlib, osuapi, io, sys
 # import logging
 from typing import *
 from collections import defaultdict as dd
 from collections import deque
-from nextcord.ext import commands, tasks
+from discord.ext import commands, tasks
 from enum import IntEnum
 
 """
@@ -46,7 +46,8 @@ drive_folder = drive.ListFile(
     {'q': "title='od' and mimeType='application/vnd.google-apps.folder' and trashed=false"}
 ).GetList()[0]
 """
-intents = nextcord.Intents.default()
+intents = discord.Intents.default()
+intents.message_content = True
 intents.members = True
 intents.reactions = True
 
@@ -72,9 +73,29 @@ def get_traceback_str(exception):
     return ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)).strip()
 
 url_base = "http://ops.dgsrz.com/profile.php?uid="
+search_url_base = "http://ops.dgsrz.com/challenge_profile_en.php?=search"
 mapr = re.compile(r"(.*?) [-] ([^\[]*) [(](.*?)[)] [\[](.*)[]]")
 playr = re.compile(r"(.*) / (.*) / (.*) / (.*)x / (.*)%")
 missr = re.compile(r"[{]\"miss\":(\d+), \"hash\":(.*)[}]")
+
+
+async def getrecent(self, _id: int) -> Optional[Tuple[Sequence[AnyStr], Sequence[AnyStr], Sequence[AnyStr], str]]:
+    from bs4 import BeautifulSoup
+    url = url_base + str(_id)
+    html = await self.session.get(url)
+    bs = BeautifulSoup(await html.text(), "html.parser")
+    recent = bs.select_one("#activity > ul > li:nth-child(1)")
+    recent_mapinfo = recent.select("a.clear > strong.block")[0].text
+    recent_playinfo = recent.select("a.clear > small")[0].text
+    recent_miss = recent.select("#statics")[0].text
+    rank_img_filename = recent.select("a.thumb-sm.pull-left.m-r-sm > img")[0]['src']
+    rmimatch = mapr.match(recent_mapinfo)
+    if rmimatch is None:
+        return None
+    return (rmimatch.groups(),
+            playr.match(recent_playinfo).groups(),
+            missr.match(recent_miss).groups(),
+            rank_img_filename)
 
 OSU_HOME = "https://osu.ppy.sh/home"
 OSU_SESSION = "https://osu.ppy.sh/session"
@@ -166,7 +187,8 @@ TEST_GUILD_ID = 637659003735900161
 def is_owner():
     async def predicate(ctx):
         roleids = {r.id for r in ctx.author.roles}
-        return 823414751689441331 in roleids or 829370083653713971 in roleids or ctx.author.id == 327835849142173696
+        return 823414751689441331 in roleids or 829370083653713971 in roleids or ctx.author.id == 327835849142173696 \
+               or ctx.author.id == 341785408931233793  # fixca
     return commands.check(predicate)
 
 def is_verified():
@@ -368,8 +390,8 @@ def get_nowtime_str():
     return datetime.datetime.utcnow().strftime(TIMEFORMAT)[:-3]
 
 DISCORD_STATS = [
-    nextcord.Status.online,
-    nextcord.Status.offline,
-    nextcord.Status.idle,
-    nextcord.Status.dnd
+    discord.Status.online,
+    discord.Status.offline,
+    discord.Status.idle,
+    discord.Status.dnd
 ]

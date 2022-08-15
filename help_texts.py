@@ -1,4 +1,4 @@
-import nextcord
+import discord
 
 helptxt_title = "COMMAND DESCRIPTION "
 helptxt_desc = """
@@ -10,19 +10,19 @@ __choose|one|of|these|parameters__
 
 blank = '\u200b'
 
-helptxt_page1 = nextcord.Embed(title=helptxt_title + "(1/5)", description=helptxt_desc, color=nextcord.Colour(0xfefefe))
-helptxt_page2 = nextcord.Embed(title=helptxt_title + "(2/5)", description=helptxt_desc, color=nextcord.Colour(0xfefefe))
-helptxt_page3 = nextcord.Embed(title=helptxt_title + "(3/5)", description=helptxt_desc, color=nextcord.Colour(0xfefefe))
-helptxt_page4 = nextcord.Embed(title=helptxt_title + "(4/5)", description=helptxt_desc, color=nextcord.Colour(0xfefefe))
-helptxt_page5 = nextcord.Embed(title=helptxt_title + "(5/5)", description=helptxt_desc, color=nextcord.Colour(0xfefefe))
+helptxt_page1 = discord.Embed(title=helptxt_title + "(1/5)", description=helptxt_desc, color=discord.Colour(0xfefefe))
+helptxt_page2 = discord.Embed(title=helptxt_title + "(2/5)", description=helptxt_desc, color=discord.Colour(0xfefefe))
+helptxt_page3 = discord.Embed(title=helptxt_title + "(3/5)", description=helptxt_desc, color=discord.Colour(0xfefefe))
+helptxt_page4 = discord.Embed(title=helptxt_title + "(4/5)", description=helptxt_desc, color=discord.Colour(0xfefefe))
+helptxt_page5 = discord.Embed(title=helptxt_title + "(5/5)", description=helptxt_desc, color=discord.Colour(0xfefefe))
 
 helptxt_page1.add_field(
-    name="/__profileme|pfme__ __(*mention|nextcordID*)__",
+    name="/__profileme|pfme__ __(*mention|discordID*)__",
     value="See user's UID, ELO, and TIER."
 )
 
 helptxt_page1.add_field(
-    name="/__recentme|rs__ __(*mention|nextcordID*)__",
+    name="/__recentme|rs__ __(*mention|discordID*)__",
     value="See user's recent play."
 )
 
@@ -49,7 +49,7 @@ helptxt_page1.add_field(
 )
 
 helptxt_page1.add_field(
-    name="/duel __<*mention|nextcordID*>__ (*mmr*)",
+    name="/duel __<*mention|discordID*>__ (*mmr*)",
     value="Challenges to duel. You can set mappool by entering *mmr*, then closest mappool to *mmr* will be selected.",
     inline=False
 )
@@ -250,7 +250,7 @@ helptxt_page4.add_field(
 If you enter one of them, the autoplay score should be set.
 If you only chat `/submit`, the score will be calculated by V1.
 
-nero2 = used in tournaments held in osu!droid (International) nextcord server.
+nero2 = used in tournaments held in osu!droid (International) discord server.
 `V2Score = RoundHalfUp( {(score/auto_score) x 600,000 + (acc/100)^4 x 400,000} x (1 - 0.003 x misses) )`
 
 jet2 = made by 제토넷#8729.

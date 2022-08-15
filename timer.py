@@ -8,19 +8,19 @@ class Timer:
 
     def __init__(self,
                  bot: 'MyBot',
-                 ch: nextcord.TextChannel,
+                 ch: discord.TextChannel,
                  name: str,
                  seconds: Union[float, d],
                  async_callback=None,
                  args=None):
         self.bot = bot
         self.bot.timers[name] = self
-        self.channel: nextcord.TextChannel = ch
+        self.channel: discord.TextChannel = ch
         self.name: str = name
         self.seconds: float = seconds
         self.start_time: datetime.datetime = datetime.datetime.utcnow()
         self.loop = self.bot.loop
-        self.message: Optional[nextcord.Message] = None
+        self.message: Optional[discord.Message] = None
         self.done = False
         self.callback = async_callback
         self.args = args
@@ -36,11 +36,11 @@ class Timer:
     async def run(self):
         try:
             print(f"[{get_nowtime_str()}] {self}: Timer start.")
-            self.message = await self.channel.send(embed=nextcord.Embed(
+            self.message = await self.channel.send(embed=discord.Embed(
                 title="Timer start!",
                 description=f"Timer Name : `{self.name}`\n"
                             f"Time Limit : {self.seconds}",
-                color=nextcord.Colour.dark_orange()
+                color=discord.Colour.dark_orange()
             ))
             await self.message.add_reaction(self.__emoji)
             self.sub_task = self.loop.create_task(self.sub_run())
@@ -88,12 +88,12 @@ class Timer:
     async def edit(self):
         if self.done:
             return
-        await self.message.edit(embed=nextcord.Embed(
+        await self.message.edit(embed=discord.Embed(
                 title="TIMER RUNNING...",
                 description=f"Timer Name : `{self.name}`\n"
                             f"Time Limit : {self.seconds}\n"
                             f"Time Left : {self.left_sec()}",
-                color=nextcord.Colour.dark_orange()
+                color=discord.Colour.dark_orange()
             ))
 
     async def timeover(self):
@@ -101,11 +101,11 @@ class Timer:
         self.done = True
         print(f"[{get_nowtime_str()}] {self}: Timer end. (time over)")
         self.sub_task.cancel()
-        await self.message.edit(embed=nextcord.Embed(
+        await self.message.edit(embed=discord.Embed(
             title="TIME OVER!",
             description=f"Timer Name : `{self.name}`\n"
                         f"Time Limit : {self.seconds}",
-            color=nextcord.Colour.dark_grey()
+            color=discord.Colour.dark_grey()
         ))
         await self.call_back(False)
 
@@ -115,12 +115,12 @@ class Timer:
         print(f"[{get_nowtime_str()}] {self}: Timer end. (cancelled)")
         self.task.cancel()
         self.sub_task.cancel()
-        await self.message.edit(embed=nextcord.Embed(
+        await self.message.edit(embed=discord.Embed(
             title="TIMER STOPPED!",
             description=f"Timer Name : `{self.name}`\n"
                         f"Time Limit : {self.seconds}\n"
                         f"Time Left : {self.left_sec()}",
-            color=nextcord.Colour.dark_red()
+            color=discord.Colour.dark_red()
         ))
         if run_call_back:
             await self.call_back(True)
